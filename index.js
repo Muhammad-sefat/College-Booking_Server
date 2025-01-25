@@ -27,12 +27,107 @@ async function run() {
     const CollegeCollection = client
       .db("College_finder")
       .collection("College_Data");
+    const admissionsCollection = client
+      .db("College_finder")
+      .collection("Admissions");
+    const reviewsCollection = client
+      .db("College_finder")
+      .collection("reviewData");
 
     //   get data
     app.get("/Colleges", async (req, res) => {
       const result = await CollegeCollection.find().toArray();
       res.send(result);
     });
+
+    // save admission data
+    app.post("/admissions", async (req, res) => {
+      const { email, college } = req.body;
+
+      if (!email || !college) {
+        return res
+          .status(400)
+          .send({ message: "Email and College are required." });
+      }
+
+      try {
+        // Check if an admission already exists for the user and the college
+        const existingAdmission = await admissionsCollection.findOne({
+          email,
+          college,
+        });
+        if (existingAdmission) {
+          return res.status(409).send({
+            message:
+              "You have already submitted an admission for this college.",
+          });
+        }
+
+        const result = await admissionsCollection.insertOne(req.body);
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Error saving admission.", error });
+      }
+    });
+
+    //   get data
+    app.get("/admission-data", async (req, res) => {
+      const userEmail = req.query.email;
+
+      if (!userEmail) {
+        return res
+          .status(400)
+          .send({ message: "Email is required to fetch data." });
+      }
+
+      // send data for review
+      app.post("/add-review", async (req, res) => {
+        const { email, name, review, rating } = req.body;
+
+        if (!email || !name || !review || !rating) {
+          return res.status(400).json({ message: "All fields are required." });
+        }
+
+        try {
+          const reviewData = {
+            email,
+            name,
+            review,
+            rating: parseFloat(rating),
+            createdAt: new Date(),
+          };
+
+          // Insert the review into the "reviews" collection
+          const result = await reviewsCollection.insertOne(reviewData);
+
+          // Check if the operation was successful
+          if (result.insertedId) {
+            res.status(201).json({ message: "Review added successfully." });
+          } else {
+            res.status(500).json({ message: "Failed to add review." });
+          }
+        } catch (error) {
+          console.error("Error adding review:", error);
+          res.status(500).json({ message: "Internal server error." });
+        }
+      });
+
+      try {
+        const result = await admissionsCollection
+          .find({ email: userEmail })
+          .toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Error fetching data.", error });
+      }
+    });
+
+    // get data
+    app.get("/reviews", async (req, res) => {
+      const result = await reviewsCollection.find().toArray();
+      res.send(result);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
