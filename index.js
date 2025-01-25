@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+    await client.connect();
     const CollegeCollection = client
       .db("College_finder")
       .collection("College_Data");
@@ -138,12 +138,11 @@ async function run() {
 
       try {
         const result = await CollegeCollection.findOne({
-          name: { $regex: name, $options: "i" }, // Case-insensitive search
+          name: { $regex: name, $options: "i" },
         });
-        console.log(result);
 
         if (result) {
-          res.status(200).json(result); // Return the college object
+          res.status(200).json(result);
         } else {
           res.status(404).json({ message: "College not found." });
         }
@@ -153,10 +152,10 @@ async function run() {
       }
     });
 
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
   }
 }
