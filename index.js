@@ -128,6 +128,31 @@ async function run() {
       res.send(result);
     });
 
+    // Search for a college by name
+    app.get("/search-college", async (req, res) => {
+      const { name } = req.query;
+
+      if (!name) {
+        return res.status(400).json({ message: "College name is required." });
+      }
+
+      try {
+        const result = await CollegeCollection.findOne({
+          name: { $regex: name, $options: "i" }, // Case-insensitive search
+        });
+        console.log(result);
+
+        if (result) {
+          res.status(200).json(result); // Return the college object
+        } else {
+          res.status(404).json({ message: "College not found." });
+        }
+      } catch (error) {
+        console.error("Error searching for college:", error);
+        res.status(500).json({ message: "Internal server error." });
+      }
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
