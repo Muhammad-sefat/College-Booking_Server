@@ -8,7 +8,7 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "https://collage-booking-client.vercel.app",
+    origin: ["https://collage-booking-client.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
