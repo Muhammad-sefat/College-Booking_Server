@@ -8,11 +8,14 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: ["https://collage-booking-client.vercel.app"],
+    origin: "https://collage-booking-client.vercel.app",
     credentials: true,
   })
 );
 app.use(express.json());
+
+// Handle preflight requests
+app.options("*", cors());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.dbn21dt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
