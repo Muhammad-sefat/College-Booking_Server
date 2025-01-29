@@ -1,5 +1,5 @@
-const express = require("express");
 require("dotenv").config();
+const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 
@@ -8,7 +8,10 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "https://collage-booking-client.vercel.app",
+    origin: [
+      "https://collage-booking-client.vercel.app",
+      "http://localhost:5173",
+    ],
     credentials: true,
   })
 );
@@ -26,6 +29,14 @@ const client = new MongoClient(uri, {
     strict: true,
     deprecationErrors: true,
   },
+});
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*"); // Allow the requesting origin
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
 });
 
 async function run() {
