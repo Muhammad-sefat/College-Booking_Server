@@ -99,38 +99,6 @@ async function run() {
           .send({ message: "Email is required to fetch data." });
       }
 
-      // send data for review
-      app.post("/add-review", async (req, res) => {
-        const { email, name, review, rating } = req.body;
-
-        if (!email || !name || !review || !rating) {
-          return res.status(400).json({ message: "All fields are required." });
-        }
-
-        try {
-          const reviewData = {
-            email,
-            name,
-            review,
-            rating: parseFloat(rating),
-            createdAt: new Date(),
-          };
-
-          // Insert the review into the "reviews" collection
-          const result = await reviewsCollection.insertOne(reviewData);
-
-          // Check if the operation was successful
-          if (result.insertedId) {
-            res.status(201).json({ message: "Review added successfully." });
-          } else {
-            res.status(500).json({ message: "Failed to add review." });
-          }
-        } catch (error) {
-          console.error("Error adding review:", error);
-          res.status(500).json({ message: "Internal server error." });
-        }
-      });
-
       try {
         const result = await admissionsCollection
           .find({ email: userEmail })
@@ -138,6 +106,37 @@ async function run() {
         res.send(result);
       } catch (error) {
         res.status(500).send({ message: "Error fetching data.", error });
+      }
+    });
+    // send data
+    app.post("/add-review", async (req, res) => {
+      const { email, name, review, rating } = req.body;
+
+      if (!email || !name || !review || !rating) {
+        return res.status(400).json({ message: "All fields are required." });
+      }
+
+      try {
+        const reviewData = {
+          email,
+          name,
+          review,
+          rating: parseFloat(rating),
+          createdAt: new Date(),
+        };
+
+        // Insert the review into the "reviews" collection
+        const result = await reviewsCollection.insertOne(reviewData);
+
+        // Check if the operation was successful
+        if (result.insertedId) {
+          res.status(201).json({ message: "Review added successfully." });
+        } else {
+          res.status(500).json({ message: "Failed to add review." });
+        }
+      } catch (error) {
+        console.error("Error adding review:", error);
+        res.status(500).json({ message: "Internal server error." });
       }
     });
 
