@@ -6,17 +6,16 @@ const { MongoClient, ServerApiVersion } = require("mongodb");
 const app = express();
 
 // Middleware
+
 app.use(
   cors({
-    origin: [
-      "https://collage-booking-client.vercel.app",
-      "http://localhost:5173",
-    ],
+    origin: "*", // Allow all origins (for testing; restrict in production)
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
   })
 );
+
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.dbn21dt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -28,6 +27,22 @@ const client = new MongoClient(uri, {
     strict: true,
     deprecationErrors: true,
   },
+});
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // Change to specific domain in production
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  next();
+});
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  return res.status(204).send();
 });
 
 async function run() {
