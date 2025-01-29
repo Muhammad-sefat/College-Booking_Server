@@ -8,10 +8,7 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://collage-booking-client.vercel.app",
-    ],
+    origin: ["https://collage-booking-client.vercel.app"],
     credentials: true,
   })
 );
